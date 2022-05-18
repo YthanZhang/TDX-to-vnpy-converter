@@ -6,5 +6,5 @@
 
 ## 运行
 
-将从通达信导出的 `*.txt` 文件放置到 `tdx_files` 文件夹中, 运行main.py,
+将从通达信导出的 `*.txt` 文件放置到 `tdx_files` 文件夹中, 运行 `main.py`,
 输出会被放置到 `cvs_files` 文件夹中
