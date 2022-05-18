@@ -14,6 +14,7 @@ def load_tdx(path: str) -> list[list]:
 
 
 def output_csv(path: str, grid: list[list]):
+    # df_map maps column name to grid column index
     df_map = {"datetime": 0,
               "open": 1,
               "high": 2,
@@ -22,14 +23,17 @@ def output_csv(path: str, grid: list[list]):
               "volume": 5,
               "open_interest": 6}
 
+    # df_dict match pandas dataframe with dictionary
     df_dict = {}
     for key in df_map.keys():
         df_dict[key] = []
 
+    # append data to df_dict from grid
     for row in grid:
         for key in df_dict.keys():
             df_dict[key].append(row[df_map[key]])
 
+    # export csv file
     df = pd.DataFrame(df_dict)
     df.to_csv(path, index=False)
 
