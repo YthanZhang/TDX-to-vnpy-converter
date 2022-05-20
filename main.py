@@ -21,7 +21,9 @@ if __name__ == "__main__":
     output_paths = (os.path.join(OUTPUT_PATH, f) for f in output_files)
 
     for in_path, out_path in zip(input_paths, output_paths):
-        print("load: {}, output: {}".format(in_path, out_path))
+        print("load: {}, output: {}".format(in_path, out_path),
+              end=" ",
+              flush=True)
 
         if sys.argv[1] == 'd':
             symbol, exchange, grid = conv.load_tdx(in_path)
