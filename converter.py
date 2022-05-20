@@ -13,7 +13,11 @@ def load_tdx(path: str) -> list[list]:
     return grid
 
 
-def output_csv(path: str, grid: list[list]):
+def tdx_date_to_datetime(date: str) -> str:
+    return date + " 09:00:00"
+
+
+def output_csv_daily(path: str, grid: list[list]):
     # df_map maps column name to grid column index
     df_map = {"datetime": 0,
               "open": 1,
@@ -31,7 +35,46 @@ def output_csv(path: str, grid: list[list]):
     # append data to df_dict from grid
     for row in grid:
         for key in df_dict.keys():
-            df_dict[key].append(row[df_map[key]])
+            if key == "datetime":
+                df_dict[key].append(tdx_date_to_datetime(row[df_map[key]]))
+            else:
+                df_dict[key].append(row[df_map[key]])
+
+    # export csv file
+    df = pd.DataFrame(df_dict)
+    df.to_csv(path, index=False)
+
+
+def tdx_date_time_to_datetime(date: str, time: str) -> str:
+    return date + " " + time[:2] + ":" + time[2:] + ":00"
+
+
+def output_csv_minute(path: str, grid: list[list]):
+    # df_map maps column name to grid column index
+    df_map = {
+        "datetime": [0, 1],
+        "open": 2,
+        "high": 3,
+        "low": 4,
+        "close": 5,
+        "volume": 6,
+        "open_interest": 7,
+    }
+
+    # df_dict match pandas dataframe with dictionary
+    df_dict = {}
+    for key in df_map.keys():
+        df_dict[key] = []
+
+    # append data to df_dict from grid
+    for row in grid:
+        for key in df_dict.keys():
+            if key == "datetime":
+                date = row[df_map[key][0]]
+                time = row[df_map[key][1]]
+                df_dict[key].append(tdx_date_time_to_datetime(date, time))
+            else:
+                df_dict[key].append(row[df_map[key]])
 
     # export csv file
     df = pd.DataFrame(df_dict)
@@ -40,4 +83,4 @@ def output_csv(path: str, grid: list[list]):
 
 if __name__ == "__main__":
     tdx_grid = load_tdx("tdx_files/AGL9.txt")
-    output_csv("AGL9.csv", tdx_grid)
+    output_csv_daily("AGL9.csv", tdx_grid)
