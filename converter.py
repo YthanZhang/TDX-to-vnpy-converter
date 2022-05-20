@@ -1,23 +1,25 @@
 import pandas as pd
 
 
-def load_tdx(path: str) -> list[list]:
+def load_tdx(path: str) -> (str, list[list]):
     with open(path, mode="r", encoding="GBK") as f:
         text = f.read()
-        lines = text.split("\n")[2:][:-2]
+        lines = text.split("\n")
+        symbol_ = lines[0].split()[0]
+        lines = lines[2:-2]
 
     grid = []
     for line in lines:
         grid.append(line.split())
 
-    return grid
+    return symbol_, grid
 
 
 def tdx_date_to_datetime(date: str) -> str:
     return date + " 09:00:00"
 
 
-def output_csv_daily(path: str, grid: list[list]):
+def output_csv_daily(path: str, grid: list[list], symbol_: str):
     # df_map maps column name to grid column index
     df_map = {"datetime": 0,
               "open": 1,
@@ -40,6 +42,8 @@ def output_csv_daily(path: str, grid: list[list]):
             else:
                 df_dict[key].append(row[df_map[key]])
 
+    df_dict["symbol"] = [symbol_ for _ in range(len(df_dict["open"]))]
+
     # export csv file
     df = pd.DataFrame(df_dict)
     df.to_csv(path, index=False)
@@ -49,7 +53,7 @@ def tdx_date_time_to_datetime(date: str, time: str) -> str:
     return date + " " + time[:2] + ":" + time[2:] + ":00"
 
 
-def output_csv_minute(path: str, grid: list[list]):
+def output_csv_minute(path: str, grid: list[list], symbol_: str):
     # df_map maps column name to grid column index
     df_map = {
         "datetime": [0, 1],
@@ -76,11 +80,13 @@ def output_csv_minute(path: str, grid: list[list]):
             else:
                 df_dict[key].append(row[df_map[key]])
 
+    df_dict["symbol"] = [symbol_ for _ in range(len(df_dict["open"]))]
+
     # export csv file
     df = pd.DataFrame(df_dict)
     df.to_csv(path, index=False)
 
 
 if __name__ == "__main__":
-    tdx_grid = load_tdx("tdx_files/AGL9.txt")
-    output_csv_daily("AGL9.csv", tdx_grid)
+    symbol, tdx_grid = load_tdx("tdx_files/AGL9.txt")
+    output_csv_daily("AGL9.csv", tdx_grid, symbol)
