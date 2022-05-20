@@ -1,25 +1,41 @@
 import pandas as pd
 
+exchange_df = pd.read_csv("exchange_list.csv", encoding="GBK")
 
-def load_tdx(path: str) -> (str, list[list]):
+
+def get_exchange_from_symbol(symbol: str) -> str:
+    if symbol[-2:] == "L9":
+        symbol = symbol[:-2]
+    exchange_row = exchange_df.loc[exchange_df["交易代码"] == symbol]
+
+    if not exchange_row.empty:
+        return exchange_row.iloc[0, 2]
+    else:
+        return "None"
+
+
+def load_tdx(path: str) -> (str, str, list[list]):
     with open(path, mode="r", encoding="GBK") as f:
         text = f.read()
         lines = text.split("\n")
-        symbol_ = lines[0].split()[0]
-        lines = lines[2:-2]
+
+    symbol = lines[0].split()[0]
+    lines = lines[2:-2]
+
+    exchange = get_exchange_from_symbol(symbol)
 
     grid = []
     for line in lines:
         grid.append(line.split())
 
-    return symbol_, grid
+    return symbol, exchange, grid
 
 
 def tdx_date_to_datetime(date: str) -> str:
     return date + " 09:00:00"
 
 
-def output_csv_daily(path: str, grid: list[list], symbol_: str):
+def output_csv_daily(path: str, grid: list[list], symbol: str, exchange: str):
     # df_map maps column name to grid column index
     df_map = {"datetime": 0,
               "open": 1,
@@ -42,7 +58,8 @@ def output_csv_daily(path: str, grid: list[list], symbol_: str):
             else:
                 df_dict[key].append(row[df_map[key]])
 
-    df_dict["symbol"] = [symbol_ for _ in range(len(df_dict["open"]))]
+    df_dict["symbol"] = [symbol for _ in range(len(df_dict["open"]))]
+    df_dict["exchange"] = [exchange for _ in range(len(df_dict["open"]))]
 
     # export csv file
     df = pd.DataFrame(df_dict)
@@ -53,7 +70,7 @@ def tdx_date_time_to_datetime(date: str, time: str) -> str:
     return date + " " + time[:2] + ":" + time[2:] + ":00"
 
 
-def output_csv_minute(path: str, grid: list[list], symbol_: str):
+def output_csv_minute(path: str, grid: list[list], symbol: str, exchange: str):
     # df_map maps column name to grid column index
     df_map = {
         "datetime": [0, 1],
@@ -80,7 +97,8 @@ def output_csv_minute(path: str, grid: list[list], symbol_: str):
             else:
                 df_dict[key].append(row[df_map[key]])
 
-    df_dict["symbol"] = [symbol_ for _ in range(len(df_dict["open"]))]
+    df_dict["symbol"] = [symbol for _ in range(len(df_dict["open"]))]
+    df_dict["exchange"] = [exchange for _ in range(len(df_dict["open"]))]
 
     # export csv file
     df = pd.DataFrame(df_dict)
@@ -88,5 +106,5 @@ def output_csv_minute(path: str, grid: list[list], symbol_: str):
 
 
 if __name__ == "__main__":
-    symbol, tdx_grid = load_tdx("tdx_files/AGL9.txt")
-    output_csv_daily("AGL9.csv", tdx_grid, symbol)
+    symbol_, exchange_, tdx_grid_ = load_tdx("tdx_files/AGL9.txt")
+    output_csv_daily("AGL9.csv", tdx_grid_, symbol_, exchange_)

@@ -24,11 +24,11 @@ if __name__ == "__main__":
         print("load: {}, output: {}".format(in_path, out_path), end=" ")
 
         if sys.argv[1] == 'd':
-            symbol, grid = conv.load_tdx(in_path)
-            conv.output_csv_daily(out_path, grid, symbol)
+            symbol, exchange, grid = conv.load_tdx(in_path)
+            conv.output_csv_daily(out_path, grid, symbol, exchange)
         elif sys.argv[1] == 'm':
-            symbol, grid = conv.load_tdx(in_path)
-            conv.output_csv_minute(out_path, grid, symbol)
+            symbol, exchange, grid = conv.load_tdx(in_path)
+            conv.output_csv_minute(out_path, grid, symbol, exchange)
         else:
             raise ValueError(
                 "'{}' 不是有效的K线类型，'d'代表日线, 'm'代表分钟线".format(sys.argv[1]))
