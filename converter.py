@@ -116,5 +116,5 @@ def output_csv_minute(path: str, grid: list[list], symbol: str, exchange: str,
 
 
 if __name__ == "__main__":
-    symbol_, exchange_, tdx_grid_ = load_tdx("tdx_files/AGL9.txt")
+    symbol_, exchange_, tdx_grid_ = load_tdx("tdx_1m/AGL9.txt")
     output_csv_daily("AGL9.csv", tdx_grid_, symbol_, exchange_)
