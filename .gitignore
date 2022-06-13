@@ -1,3 +1,4 @@
 /tdx_files/*
+/csv_files/*
 
 /__pycache__/
