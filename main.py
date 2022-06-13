@@ -7,7 +7,7 @@ SOURCE_PATH = "./tdx_files"
 OUTPUT_PATH = "./cvs_files"
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         raise ValueError("必须提供K线类型，'d'代表日线, 'm'代表分钟线")
 
     if not os.path.exists(OUTPUT_PATH):
@@ -29,8 +29,15 @@ if __name__ == "__main__":
             symbol, exchange, grid = conv.load_tdx(in_path)
             conv.output_csv_daily(out_path, grid, symbol, exchange)
         elif sys.argv[1] == 'm':
+            try:
+                sys.argv.index("--no-adjust-time")
+                adjust_time = False
+            except ValueError:
+                adjust_time = True
+
             symbol, exchange, grid = conv.load_tdx(in_path)
-            conv.output_csv_minute(out_path, grid, symbol, exchange)
+            conv.output_csv_minute(out_path, grid, symbol, exchange,
+                                   adjust_time)
         else:
             raise ValueError(
                 "'{}' 不是有效的K线类型，'d'代表日线, 'm'代表分钟线".format(sys.argv[1]))

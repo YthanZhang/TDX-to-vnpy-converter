@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pandas as pd
 
 exchange_df = pd.read_csv("exchange_list.csv", encoding="GBK")
@@ -66,11 +68,18 @@ def output_csv_daily(path: str, grid: list[list], symbol: str, exchange: str):
     df.to_csv(path, index=False)
 
 
-def tdx_date_time_to_datetime(date: str, time: str) -> str:
-    return date + " " + time[:2] + ":" + time[2:] + ":00"
+def tdx_date_time_to_datetime(date_str: str, time_str: str,
+                              adjust_end_time=False) -> str:
+    dt_str = date_str + " " + time_str[:2] + ":" + time_str[2:] + ":00"
+    if not adjust_end_time:
+        return dt_str
+    dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+    dt -= timedelta(minutes=1)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
-def output_csv_minute(path: str, grid: list[list], symbol: str, exchange: str):
+def output_csv_minute(path: str, grid: list[list], symbol: str, exchange: str,
+                      time_adjust: bool):
     # df_map maps column name to grid column index
     df_map = {
         "datetime": [0, 1],
@@ -93,7 +102,8 @@ def output_csv_minute(path: str, grid: list[list], symbol: str, exchange: str):
             if key == "datetime":
                 date = row[df_map[key][0]]
                 time = row[df_map[key][1]]
-                df_dict[key].append(tdx_date_time_to_datetime(date, time))
+                df_dict[key].append(
+                    tdx_date_time_to_datetime(date, time, time_adjust))
             else:
                 df_dict[key].append(row[df_map[key]])
 
