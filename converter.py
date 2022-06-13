@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 import pandas as pd
 
@@ -74,7 +74,11 @@ def tdx_date_time_to_datetime(date_str: str, time_str: str,
     if not adjust_end_time:
         return dt_str
     dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+
+    if dt.time() >= time(21):
+        dt -= timedelta(days=1)
     dt -= timedelta(minutes=1)
+
     return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
