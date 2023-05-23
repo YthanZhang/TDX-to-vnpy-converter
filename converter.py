@@ -6,14 +6,31 @@ exchange_df = pd.read_csv("exchange_list.csv", encoding="GBK")
 
 
 def get_exchange_from_symbol(symbol: str) -> str:
-    if symbol[-2:] == "L9":
-        symbol = symbol[:-2]
+    symbol = symbol[:-2]
     exchange_row = exchange_df.loc[exchange_df["交易代码"] == symbol]
 
     if not exchange_row.empty:
         return exchange_row.iloc[0, 2]
-    else:
-        return "None"
+    elif len(symbol) > 4:
+        symbol = symbol[:4]
+        if symbol == "1000":
+            return "SSE"
+        elif symbol == "9000":
+            return "SZSE"
+
+    return "None"
+
+
+def symbol_transform(original: str, exchange: str) -> str:
+    uppercase_exchange = ["CZCE", "CFFEX"]
+    should_lower = True
+    if exchange in uppercase_exchange:
+        should_lower = False
+
+    postfix = original[-1] * 2
+    symbol = original[:-2].lower() if should_lower else original[:-2].upper()
+
+    return symbol + postfix
 
 
 def load_tdx(path: str) -> (str, str, list[list]):
@@ -29,6 +46,8 @@ def load_tdx(path: str) -> (str, str, list[list]):
     grid = []
     for line in lines:
         grid.append(line.split())
+
+    symbol = symbol_transform(symbol, exchange)
 
     return symbol, exchange, grid
 
@@ -60,7 +79,8 @@ def output_csv_daily(path: str, grid: list[list], symbol: str, exchange: str):
             else:
                 df_dict[key].append(row[df_map[key]])
 
-    df_dict["symbol"] = [symbol for _ in range(len(df_dict["open"]))]
+    df_dict["symbol"] = [symbol for _ in
+                         range(len(df_dict["open"]))]
     df_dict["exchange"] = [exchange for _ in range(len(df_dict["open"]))]
 
     # export csv file
